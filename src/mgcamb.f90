@@ -25,6 +25,9 @@ module MGCAMB
     ! Planck Parametrization
     real(dl) :: E11
     real(dl) :: E22
+    real(dl) :: c1
+    real(dl) :: c2
+    real(dl) :: lambda
 
     ! Q-R parametrization 1
     real(dl) :: MGQfix
@@ -440,7 +443,8 @@ contains
                     !omegaDE_t = mg_cache%grhov_t / a**2 / 3._dl / mg_par_cache%h0_Mpc**2
 
                     omegaDE_t = mg_cache%grhov_t / 3._dl / mg_cache%adotoa**2
-                    MGCAMB_Mu = 1._dl + E11*omegaDE_t
+                    LHoK2 = (lambda * mg_cache%adotoa)**2. / mg_cache%k2
+                    MGCAMB_Mu = 1._dl + E11*omegaDE_t*(1 + c1*LHoK2) / (1 + LHoK2)
 
                 else if ( mugamma_par == 3 ) then ! effective Newton constant
                     MGCAMB_Mu = 1._dl+ga*(1._dl)**nn - ga*(1._dl)**(2._dl*nn)
@@ -535,6 +539,7 @@ contains
         real(dl) :: beta, betadot, m, mdot
         real(dl) :: mu
 
+        real(dl) :: omegaDE_t
         real(dl) :: omegaDEdot
 
         !> pure MG models
@@ -553,10 +558,13 @@ contains
                     !omegaDEdot = - 3._dl * mg_cache%adotoa * (mg_cache%grhov_t + mg_cache%gpresv_t) &
                     !            & / a**2 / 3._dl / mg_par_cache%h0_Mpc**2
 
+                    omegaDE_t = mg_cache%grhov_t / 3._dl / mg_cache%adotoa**2
                     omegaDEdot=-(mg_cache%grhov_t+3._dl*mg_cache%gpresv_t)/3._dl/mg_cache%adotoa &
                             & - 2._dl*mg_cache%Hdot/3._dl/mg_cache%adotoa**3*mg_cache%grhov_t
 
-                    MGCAMB_Mudot = E11*omegaDEdot
+                    MGCAMB_Mudot = 1. / (mg_cache%k2 + lambda**2. mg_cache%adotoa**2.)**2.*(2.*(c1 &
+                                   - 1.)*E11*mg_cache%k2*lambda**2.*mg_cache%adotoa*mg_cache%Hdot*omegaDE_t + E11*(mg_cache%k2 &
+                                   + lambda**2.*mg_cache%adotoa**2.)*(mg_cache%k2 + c1*lambda**2.*mg_cache%adotoa**2.)*omegaDEdot)
 
                 else if ( mugamma_par == 3 ) then
                     MGCAMB_Mudot = mg_cache%adotoa*a*ga*nn*(-1._dl+2._dl*(1._dl-a)**nn)*(1._dl-a)**(nn-1._dl)
@@ -676,7 +684,8 @@ contains
                     ! changing the following
                     !omegaDE_t = mg_cache%grhov_t / a**2 / 3._dl / mg_par_cache%h0_Mpc**2
                     omegaDE_t = mg_cache%grhov_t / 3._dl / mg_cache%adotoa**2
-                    MGCAMB_Gamma = 1._dl+E22*omegaDE_t
+                    LHoK2 = (lambda * mg_cache%adotoa)**2. / mg_cache%k2
+                    MGCAMB_Gamma = 1._dl+E22*omegaDE_t*(1 + c2*LHoK2) / (1 + LHoK2)
 
                 else if ( mugamma_par == 3 ) then
                     MGCAMB_Gamma = 1._dl
@@ -781,10 +790,14 @@ contains
                     ! changing the following
                     !omegaDEdot = - 3._dl * mg_cache%adotoa * (mg_cache%grhov_t + mg_cache%gpresv_t) &
                     !            & / a**2 / 3._dl / mg_par_cache%h0_Mpc**2
+                    omegaDE_t = mg_cache%grhov_t / 3._dl / mg_cache%adotoa**2
                     omegaDEdot=-(mg_cache%grhov_t+3._dl*mg_cache%gpresv_t)/3._dl/mg_cache%adotoa &
                                 & - 2._dl*mg_cache%Hdot/3._dl/mg_cache%adotoa**3*mg_cache%grhov_t
 
-                    MGCAMB_Gammadot = E22*omegaDEdot
+                    MGCAMB_Gammadot = 1. / (mg_cache%k2 + lambda**2. mg_cache%adotoa**2.)**2.*(2.*(c1 &
+                                      - 1.)*E22*mg_cache%k2*lambda**2.*mg_cache%adotoa*mg_cache%Hdot*omegaDE_t + E22*(mg_cache%k2 &
+                                      + lambda**2.*mg_cache%adotoa**2.)*(mg_cache%k2 + c1*lambda**2.*mg_cache%adotoa**2.) &
+                                      *omegaDEdot)
 
                 else if ( mugamma_par == 3 ) then
                     MGCAMB_Gammadot = 0._dl
@@ -1143,7 +1156,10 @@ contains
                         write(*,*) '        Planck parametrization'
                         E11     = Ini_Read_Double('E11', 0._dl)
                         E22     = Ini_Read_Double('E22', 0._dl)
-                        write(*,*) 'E11, E22', E11, E22
+                        c1     = Ini_Read_Double('c1', 0._dl)
+                        c2     = Ini_Read_Double('c2', 0._dl)
+                        lambda     = Ini_Read_Double('lambda', 0._dl)
+                        write(*,*) '        Planck parameterization'
                     else if ( mugamma_par == 3 ) then
                         write(*,*) '        Effective Newton constant'
                         ga      = Ini_Read_Double('ga', 0._dl)

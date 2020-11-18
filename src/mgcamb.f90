@@ -419,6 +419,7 @@ contains
         ! local variables
         real(dl) :: LKA1 ! \lambda_1^2 k^2 a^s
         real(dl) :: LKA2 ! \lambda_1^2 k^2 a^s
+        real(dl) :: LHoK2 ! \lambda^2 H^2 / k^2
         real(dl) :: t1, t2, t1dot, t2dot
         real(dl) :: omm, ommdot
 
@@ -562,7 +563,7 @@ contains
                     omegaDEdot=-(mg_cache%grhov_t+3._dl*mg_cache%gpresv_t)/3._dl/mg_cache%adotoa &
                             & - 2._dl*mg_cache%Hdot/3._dl/mg_cache%adotoa**3*mg_cache%grhov_t
 
-                    MGCAMB_Mudot = 1. / (mg_cache%k2 + lambda**2. mg_cache%adotoa**2.)**2.*(2.*(c1 &
+                    MGCAMB_Mudot = 1. / (mg_cache%k2 + lambda**2.*mg_cache%adotoa**2.)**2.*(2.*(c1 &
                                    - 1.)*E11*mg_cache%k2*lambda**2.*mg_cache%adotoa*mg_cache%Hdot*omegaDE_t + E11*(mg_cache%k2 &
                                    + lambda**2.*mg_cache%adotoa**2.)*(mg_cache%k2 + c1*lambda**2.*mg_cache%adotoa**2.)*omegaDEdot)
 
@@ -662,6 +663,7 @@ contains
 
         real(dl) :: LKA1 ! \lambda_1^2 k^2 a^s
         real(dl) :: LKA2 ! \lambda_1^2 k^2 a^s
+        real(dl) :: LHoK2 ! \lambda^2 H^2 / k^2
         real(dl) :: t1,t2, t1dot, t2dot
 
         real(dl) :: beta, m
@@ -794,7 +796,7 @@ contains
                     omegaDEdot=-(mg_cache%grhov_t+3._dl*mg_cache%gpresv_t)/3._dl/mg_cache%adotoa &
                                 & - 2._dl*mg_cache%Hdot/3._dl/mg_cache%adotoa**3*mg_cache%grhov_t
 
-                    MGCAMB_Gammadot = 1. / (mg_cache%k2 + lambda**2. mg_cache%adotoa**2.)**2.*(2.*(c1 &
+                    MGCAMB_Gammadot = 1. / (mg_cache%k2 + lambda**2. * mg_cache%adotoa**2.)**2.*(2.*(c1 &
                                       - 1.)*E22*mg_cache%k2*lambda**2.*mg_cache%adotoa*mg_cache%Hdot*omegaDE_t + E22*(mg_cache%k2 &
                                       + lambda**2.*mg_cache%adotoa**2.)*(mg_cache%k2 + c1*lambda**2.*mg_cache%adotoa**2.) &
                                       *omegaDEdot)
